@@ -1,38 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>benben.md</title>
-    <url>/2024/11/25/benben-md/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>ben</title>
-    <url>/2024/11/25/ben/</url>
-    <content><![CDATA[<!-- ![](./assets/image-20241125130357098.png) -->
-
-
-
-<!-- ![图片标题](/ben/1.png) -->
-
-<p><img   src="/images/1.png" ></p>
-<!-- ![示例图片](./assets/1-1732517586698-7.png) -->
-]]></content>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/2024/11/25/benben/</url>
-    <content><![CDATA[<hr>
-<p>title: Keep 主题使用指南<br>date: 2020-04-07 21:55:14<br>sticky: 9999<br>aging: true<br>aging_days: 30</p>
-<p>…</p>
-<p>avatar:  <a class="link"   href="https://drun1baby.top/2023/12/07/Jackson-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%88%E4%B8%89%EF%BC%89CVE-2017-17485/calc.png" >https://drun1baby.top/2023/12/07/Jackson-反序列化（三）CVE-2017-17485/calc.png<i class="fas fa-external-link-alt"></i></a></p>
-]]></content>
-  </entry>
-  <entry>
     <title>dai</title>
-    <url>/2024/11/25/dai/</url>
-    <content><![CDATA[<p><img   src="/images/1.png" ></p>
-<p><img   src="/./assets/1-1732520021895-6.png" ></p>
-<p><img   src="F:/My-Blog/source/_posts/dai/1.png" ></p>
+    <url>/2023/11/25/dai/</url>
+    <content><![CDATA[<p><img   src="/./images/1/1.png" ></p>
+<p><img   src="/dai/1.png" ></p>
+<p><img   src="/./assets/5e846a88aeb91d887bfa8ef4890a1ae0.jpg"  alt="罗小黑"></p>
+<p><img   src="https://file.imgcc.cloud/images/2024/11/25/5e846a88aeb91d887bfa8ef4890a1ae0.jpg"  alt="罗小黑"></p>
 ]]></content>
   </entry>
   <entry>
@@ -52,13 +26,6 @@
 
 <p>More info: <a class="link"   href="https://hexo.io/docs/one-command-deployment.html" >Deployment<i class="fas fa-external-link-alt"></i></a></p>
 <p><a class="link"   href="https://drun1baby.top/2023/12/07/Jackson-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%88%E4%B8%89%EF%BC%89CVE-2017-17485/calc.png" >calc.png (1463×883) (drun1baby.top)<i class="fas fa-external-link-alt"></i></a></p>
-]]></content>
-  </entry>
-  <entry>
-    <title>daidai</title>
-    <url>/2024/11/25/daidai/</url>
-    <content><![CDATA[<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">phpinfo</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
 ]]></content>
   </entry>
 </search>
