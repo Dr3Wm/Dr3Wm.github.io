@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="java">
+    <meta name="author" content="Dr3Wm">
+    
+    <title>
+        
+            RBAC代码审计 |
+        
+        Dr3Wm&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+        <link rel="shortcut icon" href="/images/luoxiaohei.jpg">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/font/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/font/css/regular.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/font/css/solid.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/font/css/brands.min.css">
+    
+    <script class="keep-theme-configurations">
+    const KEEP = window.KEEP || {}
+    KEEP.hexo_config = {"hostname":"dr3wm.github.io","root":"/","language":"zh-CN","path":"search.xml"}
+    KEEP.theme_config = {"base_info":{"primary_color":"#0066cc","title":"Dr3Wm's Blog","author":"Dr3Wm","avatar":"/images/benben.png","logo":"/images/benben.png","favicon":"/images/luoxiaohei.jpg"},"menu":{"home":"/ || fa-solid fa-home","archives":"/archives || fa-solid fa-box-archive","tags":"/tags                  || fa-solid fa-tags","categories":"/categories || fa-solid fa-layer-group","about":"/about || fa-solid fa-user-graduate"},"first_screen":{"enable":true,"background_img":"/images/bg.svg","background_img_dark":"/images/bg.svg","description":"行百里者半九十.","hitokoto":false},"social_contact":{"enable":true,"links":{"github":"https://github.com/Dr3Wm","weixin":"img | /images/wechat.jpg","qq":null,"weibo":null,"zhihu":null,"twitter":null,"x":null,"facebook":null,"email":"dr03wm@163.com"}},"scroll":{"progress_bar":true,"percent":false,"hide_header":true},"home":{"announcement":null,"category":true,"tag":true,"post_datetime":null},"post":{"author_badge":{"enable":false,"level_badge":true,"custom_badge":["One","Two","Three"]},"word_count":{"wordcount":true,"min2read":true},"datetime_format":"YYYY-MM-DD HH:mm:ss","copyright_info":false,"share":false,"reward":{"enable":false,"img_link":null,"text":null,"icon":null}},"code_block":{"tools":{"enable":true,"style":"default"},"highlight_theme":"obsidian"},"toc":{"enable":true,"number":true,"expand_all":false,"init_open":true,"layout":"right"},"website_count":{"busuanzi_count":{"enable":true,"site_uv":true,"site_pv":true,"page_pv":false}},"local_search":{"enable":true,"preload":true},"comment":{"enable":true,"use":"valine","valine":{"appid":"53UwyqAEA1MQyt4BP56BwTan-gzGzoHsz","appkey":"v8mQtLH8HEYHoJQmEL8l132E","server_urls":null,"placeholder":"just do it"},"gitalk":{"github_id":null,"github_admins":null,"repository":null,"client_id":null,"client_secret":null,"proxy":null},"twikoo":{"env_id":null,"region":null,"version":"1.6.36"},"waline":{"server_url":null,"reaction":false,"version":"3.2.1"},"giscus":{"repo":null,"repo_id":null,"category":"Announcements","category_id":null,"reactions_enabled":false},"artalk":{"server":null},"disqus":{"shortname":null}},"rss":{"enable":false},"lazyload":{"enable":false},"cdn":{"enable":true,"provider":"cdnjs"},"pjax":{"enable":false},"footer":{"since":2020,"word_count":false,"site_deploy":{"enable":false,"provider":"github","url":null},"record":{"enable":false,"list":[{"code":null,"link":null}]}},"inject":{"enable":false,"css":[null],"js":[null]},"search":{"path":"search.json","field":"post","content":true,"format":"striptags"},"root":"","source_data":{},"version":"4.2.3"}
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"}
+    KEEP.language_code_block = {"copy":"复制代码","copied":"已复制","fold":"折叠代码块","folded":"已折叠"}
+    KEEP.language_copy_copyright = {"copy":"复制版权信息","copied":"已复制","title":"原文标题","author":"原文作者","link":"原文链接"}
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+
+<main class="page-container border-box">
+    <!-- home first screen  -->
+    
+
+    <!-- page content -->
+    <div class="page-main-content border-box">
+        <div class="page-main-content-top">
+            
+<header class="header-wrapper">
+
+    <div class="border-box header-content">
+        <div class="left flex-start border-box">
+            
+                <a class="logo-image border-box" href="/">
+                    <img src="/images/benben.png">
+                </a>
+            
+            <a class="site-name border-box" href="/">
+               Dr3Wm&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right border-box">
+            <div class="pc border-box">
+                <ul class="menu-list border-box">
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-home"></i>
+                                
+                                首页
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/archives">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-box-archive"></i>
+                                
+                                归档
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/tags">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-tags"></i>
+                                
+                                标签
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/categories">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-layer-group"></i>
+                                
+                                分类
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/about">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-user-graduate"></i>
+                                
+                                关于
+                                
+                            </a>
+                            
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="menu-text-color fas search fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile border-box flex-start">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list border-box">
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-home"></i>
+                                </span>
+                            
+                            首页
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/archives">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-box-archive"></i>
+                                </span>
+                            
+                            归档
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/tags">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-tags"></i>
+                                </span>
+                            
+                            标签
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/categories">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-layer-group"></i>
+                                </span>
+                            
+                            分类
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/about">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-user-graduate"></i>
+                                </span>
+                            
+                            关于
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle border-box">
+
+            <div class="main-content border-box">
+                
+
+                    
+<div class="fade-in-down-animation">
+    <div class="post-page-container border-box">
+        <div class="post-content-container border-box">
+            
+
+            <div class="post-content-bottom border-box">
+                
+                    <div class="post-title">
+                        RBAC代码审计
+                    </div>
+                
+
+                
+                    <div class="post-header border-box">
+                        
+                            <div class="avatar-box border-box">
+                                <img src="/images/benben.png">
+                            </div>
+                        
+                        <div class="info-box">
+                            <div class="author border-box">
+                                <span class="name">Dr3Wm</span>
+                                
+                            </div>
+                            <div class="meta-info border-box">
+                                
+
+<div class="post-meta-info-container border-box post">
+    <div class="post-meta-info border-box">
+        
+
+        
+            <span class="meta-info-item post-create-date">
+                <i class="icon fa-solid fa-calendar-plus"></i>&nbsp;
+                <span class="datetime">2024-11-26 15:46:01</span>
+            </span>
+
+            <span class="meta-info-item post-update-date">
+                <i class="icon fa-solid fa-file-pen"></i>&nbsp;
+                <span class="datetime" data-updated="Tue Nov 26 2024 21:06:54 GMT+0800">2024-11-26 21:06:54</span>
+            </span>
+        
+
+        
+            <span class="meta-info-item post-category border-box"><i class="icon fas fa-folder"></i>&nbsp;
+                <ul class="post-category-ul">
+                    
+                            <li class="category-item"><a href="/categories/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">Java代码审计</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+            <span class="post-tag meta-info-item border-box">
+                <ul class="post-tag-ul">
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Java/">Java</a></li>
+                        
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">Java代码审计</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+        
+            <span class="meta-info-item post-wordcount">
+                <i class="icon fas fa-file-word"></i>&nbsp;<span>1.8k 字</span>
+            </span>
+        
+        
+            <span class="meta-info-item post-min2read">
+                <i class="icon fas fa-clock"></i>&nbsp;<span>8 分钟</span>
+            </span>
+        
+        
+    </div>
+
+    
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <div class="post-content keep-markdown-body ">
+                    
+
+                    
+                         <h1 id="组件漏洞"><a href="#组件漏洞" class="headerlink" title="组件漏洞"></a>组件漏洞</h1><p>首先查看pom.xml文件,查看运用了哪些组件,并且查询是否有漏洞</p>
+<table>
+<thead>
+<tr>
+<th>组件名称</th>
+<th>组件版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sping boot</td>
+<td>2.3.1</td>
+</tr>
+<tr>
+<td>Spring security</td>
+<td>5.3.3</td>
+</tr>
+<tr>
+<td>actuator</td>
+<td>2.31</td>
+</tr>
+<tr>
+<td>fastjson</td>
+<td>1.2.56</td>
+</tr>
+<tr>
+<td>thymeleaf</td>
+<td>3.0.11</td>
+</tr>
+<tr>
+<td>mybatis</td>
+<td>2.1.2</td>
+</tr>
+<tr>
+<td>swagger2</td>
+<td>2.9.2</td>
+</tr>
+<tr>
+<td>druid</td>
+<td>1.1.21</td>
+</tr>
+<tr>
+<td>easy-captcha</td>
+<td>1.6.2</td>
+</tr>
+<tr>
+<td>oshi-core</td>
+<td>4.4.2</td>
+</tr>
+<tr>
+<td>pagehelper</td>
+<td>1.2.13</td>
+</tr>
+<tr>
+<td>hutool</td>
+<td>5.1.4</td>
+</tr>
+</tbody></table>
+<h2 id="actuator未授权漏洞-存在"><a href="#actuator未授权漏洞-存在" class="headerlink" title="actuator未授权漏洞(存在)"></a>actuator未授权漏洞(存在)</h2><p>actuator最常见的漏洞就是存在未授权,因为网站为spring boot2.x,所以我们在网站路径后拼接&#x2F;actuator或者源代码搜索endpoints</p>
+<p>发现开放了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info, health, beans, env, metrics</span><br></pre></td></tr></table></figure>
+
+<h2 id="fastjson反序列化-不存在"><a href="#fastjson反序列化-不存在" class="headerlink" title="fastjson反序列化(不存在)"></a>fastjson反序列化(不存在)</h2><p>这里的fastjson版本是 1.2.56,在mvn官方网址查看发现这个版本是存在漏洞,但是在搜索调用方法</p>
+<p>JSON.toJSONString()</p>
+<p>JSON.parseObject()</p>
+<p>JSON.parse()</p>
+<p>没有使用,虽然调用了fastjson但是并没有调用</p>
+<h2 id="thymeleaf模板注入-不存在"><a href="#thymeleaf模板注入-不存在" class="headerlink" title="thymeleaf模板注入(不存在)"></a>thymeleaf模板注入(不存在)</h2><p>thymeleaf的版本是3.0.11是存在模板注入的,但是这里都运用了注解@ResponseBody,不经过模板去渲染,直接以json与xml返回到响应</p>
+<h2 id="Mybatis-不存在"><a href="#Mybatis-不存在" class="headerlink" title="Mybatis(不存在)"></a>Mybatis(不存在)</h2><h2 id="swagger2未授权-存在"><a href="#swagger2未授权-存在" class="headerlink" title="swagger2未授权(存在)"></a>swagger2未授权(存在)</h2><p>swagger2也大多数为未授权漏洞,里面可能存在啥敏感信息</p>
+<p>但是这里没啥用</p>
+<h2 id="Druid爆破密码-存在"><a href="#Druid爆破密码-存在" class="headerlink" title="Druid爆破密码(存在)"></a>Druid爆破密码(存在)</h2><p>Druid要么管理员配置不当未授权访问要么爆破账号密码,这是网上最常见的漏洞了,因为Druid的页面没有验证码校验,可以爆破成功</p>
+<h1 id="单点漏洞"><a href="#单点漏洞" class="headerlink" title="单点漏洞"></a>单点漏洞</h1><h2 id="sql注入"><a href="#sql注入" class="headerlink" title="sql注入"></a>sql注入</h2><p>因为它是使用mybatis定义sql,所以我们在mapper的xml文件中查看是否有${来直接拼接sql语句全局搜索</p>
+<h3 id="UserController-java存在注入漏洞"><a href="#UserController-java存在注入漏洞" class="headerlink" title="UserController.java存在注入漏洞"></a>UserController.java存在注入漏洞</h3><p><img src="/images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126184607210.png" alt="image-20241126184607210"></p>
+<p>这两个是一个地方,差不多一样的</p>
+<p>从mapper层到dao层</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126184743310.png" alt="image-20241126184743310"></p>
+<p>dao层到他的实现类UserServiceImpl</p>
+<p>从getAllUsersByPage方法跟踪到controller层</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126185017711.png" alt="image-20241126185017711"></p>
+<p>看到查询用户,跟踪路由到&#x2F;api&#x2F;user&#x2F;index,打开网站抓包</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126185255744.png" alt="image-20241126185255744"></p>
+<p>发现nickName与userName参数,不知道为什么延时注入测试不出来,直接上sqlmap可以跑出来</p>
+<p>userName可以出来,那么nickName也可以出来</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126190458097.png" alt="image-20241126190458097"></p>
+<h3 id="DictController-java存在注入漏洞"><a href="#DictController-java存在注入漏洞" class="headerlink" title="DictController.java存在注入漏洞"></a>DictController.java存在注入漏洞</h3><p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126194149854.png" alt="image-20241126194149854"></p>
+<p>还是与上面的步骤一样从mapper层到dao层再到实现类再到controller层</p>
+<p>拼接路由,进行抓包,给sqlmap</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126194343803.png" alt="image-20241126194343803"></p>
+<h3 id="DeptController-java存在注入漏洞"><a href="#DeptController-java存在注入漏洞" class="headerlink" title="DeptController.java存在注入漏洞"></a>DeptController.java存在注入漏洞</h3><p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126200025504.png" alt="image-20241126200025504"></p>
+<p>这个流程与上面一样但是我们在抓包的时候发现没有ancestors参数</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126200300288.png" alt="image-20241126200300288"></p>
+<p>获取的dept类中deptID,并且这个deptID是从数据库查到并给他的,那这个deptID不可控,可是我们如果找到一个地方他会更新deptId值或者插入deptId值是不是也变成可控的造成注入,所以我们找有没有update或者insert语句去更新deptId</p>
+<p>并且我们要在DeptMapper.xml因为我们要连接DeptController.java</p>
+<p><strong>第一个update</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">update</span> <span class="attr">id</span>=<span class="string">&quot;updateDeptChildren&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;java.util.List&quot;</span>&gt;</span></span><br><span class="line">        update my_dept set ancestors =</span><br><span class="line">        <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">collection</span>=<span class="string">&quot;depts&quot;</span> <span class="attr">item</span>=<span class="string">&quot;item&quot;</span> <span class="attr">index</span>=<span class="string">&quot;index&quot;</span></span></span><br><span class="line"><span class="tag">                 <span class="attr">separator</span>=<span class="string">&quot; &quot;</span> <span class="attr">open</span>=<span class="string">&quot;case dept_id&quot;</span> <span class="attr">close</span>=<span class="string">&quot;end&quot;</span>&gt;</span></span><br><span class="line">            when #&#123;item.id&#125; then #&#123;item.ancestors&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line">        where id in</span><br><span class="line">        <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">collection</span>=<span class="string">&quot;depts&quot;</span> <span class="attr">item</span>=<span class="string">&quot;item&quot;</span> <span class="attr">index</span>=<span class="string">&quot;index&quot;</span></span></span><br><span class="line"><span class="tag">                 <span class="attr">separator</span>=<span class="string">&quot;,&quot;</span> <span class="attr">open</span>=<span class="string">&quot;(&quot;</span> <span class="attr">close</span>=<span class="string">&quot;)&quot;</span>&gt;</span></span><br><span class="line">            #&#123;item.id&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">update</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>去追踪到实现类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updateDeptChildren</span><span class="params">(Integer id, String newAncestors, String oldAncestors)</span></span><br><span class="line">    &#123;</span><br><span class="line">        List&lt;MyDept&gt; children = deptDao.selectChildrenDeptById(id);</span><br><span class="line">        <span class="keyword">for</span> (MyDept child : children)</span><br><span class="line">        &#123;</span><br><span class="line">            child.setAncestors(child.getAncestors().replace(oldAncestors, newAncestors));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (children.size() &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            deptDao.updateDeptChildren(children);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//将新的Ancestors换到旧的Ancestors</span></span><br></pre></td></tr></table></figure>
+
+<p>再往上跟newAncestors</p>
+<p>他必须走到if判断里面,如果走到if判断里面那么newAncestors内容不可控</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">updateDept</span><span class="params">(MyDept dept)</span> &#123;</span><br><span class="line">        <span class="type">MyDept</span> <span class="variable">parentInfo</span> <span class="operator">=</span> deptDao.selectDeptById(dept.getParentId());</span><br><span class="line">        <span class="type">MyDept</span> <span class="variable">oldInfo</span> <span class="operator">=</span> selectDeptById(dept.getDeptId());</span><br><span class="line">        <span class="keyword">if</span>(ObjectUtil.isNotEmpty(parentInfo) &amp;&amp;ObjectUtil.isNotEmpty(oldInfo))&#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">newAncestors</span> <span class="operator">=</span> parentInfo.getAncestors() + <span class="string">&quot;,&quot;</span> + parentInfo.getDeptId();</span><br><span class="line">            <span class="type">String</span> <span class="variable">oldAncestors</span> <span class="operator">=</span> oldInfo.getAncestors();</span><br><span class="line">            dept.setAncestors(newAncestors);</span><br><span class="line">            updateDeptChildren(dept.getDeptId(), newAncestors, oldAncestors);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span>deptDao.updateDept(dept);</span><br><span class="line">        <span class="keyword">if</span> (UserConstants.DEPT_NORMAL.equals(dept.getStatus().toString()))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 如果该部门是启用状态，则启用该部门的所有上级部门</span></span><br><span class="line">            updateParentDeptStatus(dept);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//String newAncestors = parentInfo.getAncestors() + &quot;,&quot; + parentInfo.getDeptId();</span></span><br><span class="line"><span class="comment">//即即&#123;上级部门ancestors,上级部门id&#125;</span></span><br><span class="line"><span class="comment">//内容不可控,放弃</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>第二个update</strong></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126202151422.png" alt="image-20241126202151422"></p>
+<p>追踪到实现类</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126202209768.png" alt="image-20241126202209768"></p>
+<p>如果有上级部门和dept对象信息都不为空。就进入if判断,我们不能进入到if判断里面,因为进入到if判断里面</p>
+<p>newAncestors的值我们就不可控</p>
+<p>所以我们得不能有上级部门并且dept对象信息为空</p>
+<p>但是我们dept对象信息里面要带有恶意的ancestors参数所以我们必须不为空,那我们就要保证我们传入的dept对象不能有上级部门,我们往上继续追踪</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PutMapping</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;修改部门&quot;)</span></span><br><span class="line">    <span class="meta">@PreAuthorize(&quot;hasAnyAuthority(&#x27;dept:edit&#x27;)&quot;)</span></span><br><span class="line">    <span class="meta">@MyLog(&quot;修改部门&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">updateMenu</span><span class="params">(<span class="meta">@RequestBody</span> MyDept dept)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (UserConstants.DEPT_NAME_NOT_UNIQUE.equals( deptService.checkDeptNameUnique(dept))) &#123;</span><br><span class="line">            <span class="keyword">return</span> Result.error().message(<span class="string">&quot;更新岗位&#x27;&quot;</span> + dept.getDeptName() + <span class="string">&quot;&#x27;失败，岗位名称已存在&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (dept.getParentId().equals(dept.getDeptId()))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> Result.error().message(<span class="string">&quot;修改部门&#x27;&quot;</span> + dept.getDeptName() + <span class="string">&quot;&#x27;失败，上级部门不能是自己&quot;</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (dept.getStatus().toString().equals(UserConstants.DEPT_DISABLE)</span><br><span class="line">                &amp;&amp; deptService.selectNormalChildrenDeptById(dept.getDeptId()) &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> Result.error().message(<span class="string">&quot;该部门包含未停用的子部门！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> deptService.updateDept(dept);</span><br><span class="line">        <span class="keyword">return</span> Result.judge(i,<span class="string">&quot;修改&quot;</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>他的dept对象是我们用户传入的,那我们拼接路由抓包一个没有上级目录的dept对象中添加一个ancestors参数是不是就可以产生注入了</p>
+<p>他是一个输入流中参数不可控,但是另外一个输入流中可以控制相同地方的参数,从而控制参数进行攻击</p>
+<p><strong>第三个update</strong></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241126204109242.png" alt="image-20241126204109242"></p>
+<p>与ancestors参数毫无关联</p>
+<h2 id="XSS漏洞"><a href="#XSS漏洞" class="headerlink" title="XSS漏洞"></a>XSS漏洞</h2><p>网站中没有关于XSS的过滤器或者防护代码,基本全站都有xss</p>
+<h2 id="图形验证码"><a href="#图形验证码" class="headerlink" title="图形验证码"></a>图形验证码</h2><p>全局搜captcha或者直接找filter过滤器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.codermy.myspringsecurityplus.security.filter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.core.util.StrUtil;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.codermy.myspringsecurityplus.common.utils.Result;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.filter.OncePerRequestFilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.FilterChain;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.ServletException;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpSession;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">VerifyCodeFilter</span> <span class="keyword">extends</span> <span class="title class_">OncePerRequestFilter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">defaultFilterProcessUrl</span> <span class="operator">=</span> <span class="string">&quot;/login&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">method</span> <span class="operator">=</span> <span class="string">&quot;POST&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doFilterInternal</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">        <span class="keyword">if</span> (method.equalsIgnoreCase(request.getMethod()) &amp;&amp; defaultFilterProcessUrl.equals(request.getServletPath())) &#123;</span><br><span class="line">            <span class="comment">// 登录请求校验验证码，非登录请求不用校验</span></span><br><span class="line">            <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> request.getSession();</span><br><span class="line">            <span class="type">String</span> <span class="variable">requestCaptcha</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;captcha&quot;</span>);</span><br><span class="line">            <span class="comment">//验证码的信息存放在seesion种，具体看EasyCaptcha官方解释</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">genCaptcha</span> <span class="operator">=</span> (String) request.getSession().getAttribute(<span class="string">&quot;captcha&quot;</span>);</span><br><span class="line">            response.setContentType(<span class="string">&quot;application/json;charset=UTF-8&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (StrUtil.isEmpty(requestCaptcha))&#123;</span><br><span class="line">                <span class="comment">//删除缓存里的验证码信息</span></span><br><span class="line">                session.removeAttribute(<span class="string">&quot;captcha&quot;</span>);</span><br><span class="line">                response.getWriter().write(JSON.toJSONString(Result.error().message(<span class="string">&quot;验证码不能为空!&quot;</span>)));</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"><span class="comment">/*            if (StrUtil.isEmpty(genCaptcha))&#123;</span></span><br><span class="line"><span class="comment">                response.getWriter().write(JSON.toJSONString(Result.error().message(&quot;验证码已失效!&quot;)));</span></span><br><span class="line"><span class="comment">                return;</span></span><br><span class="line"><span class="comment">            &#125;</span></span><br><span class="line"><span class="comment">            if (!StrUtil.equalsIgnoreCase(genCaptcha,requestCaptcha))&#123;</span></span><br><span class="line"><span class="comment">                session.removeAttribute(&quot;captcha&quot;);</span></span><br><span class="line"><span class="comment">                response.getWriter().write(JSON.toJSONString(Result.error().message(&quot;验证码错误!&quot;)));</span></span><br><span class="line"><span class="comment">                return;</span></span><br><span class="line"><span class="comment">            &#125;*/</span></span><br><span class="line">        &#125;</span><br><span class="line">        chain.doFilter(request, response);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>他将验证码失效,验证码错误都注释了失效了,所以可以无视验证码,造成账号密码爆破</p>
+<h2 id="越权漏洞"><a href="#越权漏洞" class="headerlink" title="越权漏洞"></a>越权漏洞</h2><p>越权漏洞适合黑盒测试</p>
+<p>在后台代码中只传入userid进行操作</p>
+<p>只要在数据包中存在userid就存在越权</p>
+<p>删除用户,用户添加,部门删除都存在越权</p>
+
+                    
+                </div>
+
+                
+
+                <div class="post-bottom-tags-and-share border-box">
+                    <div>
+                        
+                            <ul class="post-tags-box border-box">
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Java/">Java</a>
+                                    </li>
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">Java代码审计</a>
+                                    </li>
+                                
+                            </ul>
+                        
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+
+                
+
+                
+                    <div class="post-nav border-box">
+                        
+                            <div class="prev-post">
+                                <a class="prev"
+                                   rel="prev"
+                                   href="/2024/11/26/Tmall%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"
+                                   title="Tmall代码审计"
+                                >
+                                    <span class="left arrow-icon flex-center">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Tmall代码审计</span>
+                                        <span class="post-nav-item">上一篇</span>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                        
+                            <div class="next-post">
+                                <a class="next"
+                                   rel="next"
+                                   href="/2024/11/13/hello-world/"
+                                   title="Hello World"
+                                >
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Hello World</span>
+                                        <span class="post-nav-item">下一篇</span>
+                                    </span>
+                                    <span class="right arrow-icon flex-center">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                    </div>
+                
+
+                
+                    
+
+
+    <div class="comments-container border-box">
+        <div id="comments-anchor" class="comment-area-title border-box">
+            <i class="fas fa-comments"></i>&nbsp;评论
+        </div>
+        <div class="comment-plugin-fail border-box">
+    <span class="fail-tip">评论插件加载失败</span>
+    <button class="reload keep-button">点击重新加载</button>
+</div>
+<div class="comment-plugin-loading flex-center border-box">
+    <i class="loading-icon fa-solid fa-spinner fa-spin"></i>
+    <span class="load-tip">正在加载评论插件</span>
+</div>
+<script data-pjax>
+  window.KeepCommentPlugin = {}
+  window.KeepCommentPlugin.hideLoading = () => {
+    const cplDom = document.querySelector('.comments-container .comment-plugin-loading')
+    cplDom.style.display = 'none'
+  }
+  window.KeepCommentPlugin.loadFailHandle = () => {
+    window.KeepCommentPlugin.hideLoading()
+    const cpfDom = document.querySelector('.comments-container .comment-plugin-fail')
+    cpfDom.style.display = 'flex'
+    cpfDom.querySelector('.reload').addEventListener('click', () => {
+      window.location.reload()
+    })
+  }
+</script>
+
+        
+            
+
+    <div class="valine-container">
+        <div id="vcomments"></div>
+        <script 
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"
+                async
+                onerror="window.KeepCommentPlugin.loadFailHandle()"
+        ></script>
+        <script 
+                async
+                onerror="window.KeepCommentPlugin.loadFailHandle()"
+        >
+          window.KeepCommentPlugin.initValine = () => {
+            const config = {
+              el: '#vcomments',
+              appId: '53UwyqAEA1MQyt4BP56BwTan-gzGzoHsz',
+              appKey: 'v8mQtLH8HEYHoJQmEL8l132E',
+              meta: ['nick', 'mail', 'link'],
+              avatar: 'wavatar',
+              enableQQ: true,
+              placeholder: 'just do it',
+              lang: 'zh-CN'.toLowerCase()
+            }
+
+            if ('') {
+              config.serverURLs = ''
+            }
+
+            if (window?.Valine) {
+              new Valine(config)
+              window.KeepCommentPlugin.hideLoading()
+            } else {
+              setTimeout(() => {
+                window.KeepCommentPlugin.initValine()
+              }, 1000)
+            }
+          }
+
+          if ('false' === 'true') {
+            setTimeout(() => {
+              window.KeepCommentPlugin.initValine()
+            }, 1200)
+          } else {
+            window.addEventListener('DOMContentLoaded', window.KeepCommentPlugin.initValine)
+          }
+        </script>
+    </div>
+
+
+        
+    </div>
+
+
+
+
+
+                
+            </div>
+        </div>
+
+        
+            <div class="pc-post-toc right-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.</span> <span class="nav-text">组件漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#actuator%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E-%E5%AD%98%E5%9C%A8"><span class="nav-number">1.1.</span> <span class="nav-text">actuator未授权漏洞(存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E4%B8%8D%E5%AD%98%E5%9C%A8"><span class="nav-number">1.2.</span> <span class="nav-text">fastjson反序列化(不存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#thymeleaf%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5-%E4%B8%8D%E5%AD%98%E5%9C%A8"><span class="nav-number">1.3.</span> <span class="nav-text">thymeleaf模板注入(不存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mybatis-%E4%B8%8D%E5%AD%98%E5%9C%A8"><span class="nav-number">1.4.</span> <span class="nav-text">Mybatis(不存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#swagger2%E6%9C%AA%E6%8E%88%E6%9D%83-%E5%AD%98%E5%9C%A8"><span class="nav-number">1.5.</span> <span class="nav-text">swagger2未授权(存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Druid%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81-%E5%AD%98%E5%9C%A8"><span class="nav-number">1.6.</span> <span class="nav-text">Druid爆破密码(存在)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E7%82%B9%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.</span> <span class="nav-text">单点漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#sql%E6%B3%A8%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">sql注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UserController-java%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.1.1.</span> <span class="nav-text">UserController.java存在注入漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DictController-java%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.1.2.</span> <span class="nav-text">DictController.java存在注入漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeptController-java%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.1.3.</span> <span class="nav-text">DeptController.java存在注入漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XSS%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.2.</span> <span class="nav-text">XSS漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E5%BD%A2%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="nav-number">2.3.</span> <span class="nav-text">图形验证码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.4.</span> <span class="nav-text">越权漏洞</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+        </div>
+
+        <div class="page-main-content-bottom border-box">
+            
+<footer class="footer border-box">
+    <div class="copyright-info info-item">
+        &copy;&nbsp;<span>2020</span>&nbsp;-&nbsp;2024
+        
+            &nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;&nbsp;<a href="/">Dr3Wm</a>
+        
+    </div>
+
+    <div class="theme-info info-item">
+        由&nbsp;<a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;驱动&nbsp;&&nbsp;主题&nbsp;<a class="keep-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep</a>
+    </div>
+
+    
+
+    
+        <div class="count-info info-item">
+            
+
+            
+                <span class="count-item border-box uv">
+                    <span class="item-type border-box">访客数</span>
+                    <span class="item-value border-box uv" id="busuanzi_value_site_uv"></span>
+                </span>
+            
+
+            
+                <span class="count-item border-box pv">
+                    <span class="item-type border-box">访问量</span>
+                    <span class="item-value border-box pv" id="busuanzi_value_site_pv"></span>
+                </span>
+            
+        </div>
+    
+
+    
+</footer>
+
+        </div>
+    </div>
+
+    <!-- post tools -->
+    
+        <div class="post-tools right-toc">
+            <div class="post-tools-container border-box">
+    <ul class="post-tools-list border-box">
+        <!-- PC encrypt again -->
+        
+
+        <!-- PC TOC show toggle -->
+        
+            <li class="tools-item flex-center toggle-show-toc">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        <!-- PC go comment -->
+        
+            <li class="tools-item flex-center go-to-comments">
+                <i class="fas fa-comment"></i>
+                <span class="post-comments-count"></span>
+            </li>
+        
+
+        <!-- PC full screen -->
+        <li class="tools-item flex-center full-screen">
+            <i class="fa-solid fa-expand"></i>
+        </li>
+    </ul>
+</div>
+
+        </div>
+    
+
+    <!-- side tools -->
+    <div class="side-tools">
+        <div class="side-tools-container border-box ">
+    <ul class="side-tools-list side-tools-show-handle border-box">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <!-- toggle mode -->
+        
+            <li class="tools-item tool-toggle-theme-mode flex-center">
+                <i class="fas fa-moon"></i>
+            </li>
+        
+
+        <!-- rss -->
+        
+
+        <!-- to bottom -->
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list border-box">
+        
+            <li class="tools-item toggle-show-toc-tablet flex-center">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        
+            <li class="tools-item go-to-comments-tablet flex-center">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+
+        <li class="tools-item tool-scroll-to-top flex-center show-arrow">
+            <i class="arrow fas fa-arrow-up"></i>
+            <span class="percent"></span>
+        </li>
+    </ul>
+</div>
+
+    </div>
+
+    <!-- image mask -->
+    <div class="zoom-in-image-mask">
+    <img class="zoom-in-image">
+</div>
+
+
+    <!-- local search -->
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="close-popup-btn">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+    <!-- tablet toc -->
+    
+        <div class="tablet-post-toc-mask">
+            <div class="tablet-post-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.</span> <span class="nav-text">组件漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#actuator%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E-%E5%AD%98%E5%9C%A8"><span class="nav-number">1.1.</span> <span class="nav-text">actuator未授权漏洞(存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E4%B8%8D%E5%AD%98%E5%9C%A8"><span class="nav-number">1.2.</span> <span class="nav-text">fastjson反序列化(不存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#thymeleaf%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5-%E4%B8%8D%E5%AD%98%E5%9C%A8"><span class="nav-number">1.3.</span> <span class="nav-text">thymeleaf模板注入(不存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mybatis-%E4%B8%8D%E5%AD%98%E5%9C%A8"><span class="nav-number">1.4.</span> <span class="nav-text">Mybatis(不存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#swagger2%E6%9C%AA%E6%8E%88%E6%9D%83-%E5%AD%98%E5%9C%A8"><span class="nav-number">1.5.</span> <span class="nav-text">swagger2未授权(存在)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Druid%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81-%E5%AD%98%E5%9C%A8"><span class="nav-number">1.6.</span> <span class="nav-text">Druid爆破密码(存在)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E7%82%B9%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.</span> <span class="nav-text">单点漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#sql%E6%B3%A8%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">sql注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UserController-java%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.1.1.</span> <span class="nav-text">UserController.java存在注入漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DictController-java%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.1.2.</span> <span class="nav-text">DictController.java存在注入漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeptController-java%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.1.3.</span> <span class="nav-text">DeptController.java存在注入漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XSS%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.2.</span> <span class="nav-text">XSS漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E5%BD%A2%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="nav-number">2.3.</span> <span class="nav-text">图形验证码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.4.</span> <span class="nav-text">越权漏洞</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        </div>
+    
+</main>
+
+
+
+
+
+<!-- common js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/utils.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/header-shrink.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/back2top.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/toggle-theme.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/code-block.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/main.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/libs/anime.min.js"></script>
+
+<!-- local search -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/local-search.min.js"></script>
+
+
+<!-- lazyload -->
+
+
+<div class="">
+    <!-- home page -->
+    
+
+    <!-- post page -->
+    
+        <!-- post-helper -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/post/post-helper.min.js"></script>
+
+        <!-- toc -->
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.3/js/post/toc.min.js"></script>
+        
+
+        <!-- copyright-info -->
+        
+
+        <!-- share -->
+        
+    
+
+    <!-- categories page -->
+    
+
+    <!-- links page -->
+    
+
+    <!-- photos page -->
+    
+
+    <!-- tools page -->
+    
+</div>
+
+<!-- mermaid -->
+
+
+<!-- pjax -->
+
+
+
+</body>
+</html>
